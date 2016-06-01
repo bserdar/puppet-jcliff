@@ -3,15 +3,15 @@
 # directory is added.
 define jcliff::configfile (
   $mode='0644',
-  $owner='root',
-  $group='root',
+  $owner=${jcliff::jcliff::configuration_user},
+  $group=${jcliff::jcliff::configuration_group},
   $content = ''
   ) {
-  file { "${jcliff::eap6_config_dir}/${name}":
+  file { "${jcliff::jcliff::configuration_directory}/${name}":
     mode    => $mode,
     owner   => $owner,
     group   => $group,
     content => $content,
-    notify  => Exec['configure-eap6'],
+    notify  => Exec['configure'],
   }
 }

@@ -1,40 +1,37 @@
-class jcliff::jcliff {
+class jcliff::jcliff(
+  $jboss_home='/usr/share/jbossas',
+  $config_dir='/etc/jcliff',
+  $management_host='localhost',
+  $management_port='9999',
+  $log_dir='/var/log',
+  $jcliff_user='jboss',
+  $jcliff_group='jboss',
+  $jboss_service='jbossas'
+) {
 
-  $eap6_home = '/usr/share/jbossas'
-  $eap6_config_dir = '/etc/jcliff'
-  $configuration = $::configuration ? {
-    ''      => 'standalone',
-    default => $::configuration,
-  }
-  $management_host = $::management_host ? {
-    ''      => 'localhost',
-    default => $::management_host,
-  }
-  $management_port = $::management_port ? {
-    ''      => '9999',
-    default => $::management_port,
-  }
-  $log_dir = '/var/log'
+  $configuration_directory = $config_dir
+  $configuration_user = $jcliff_user
+  $configuration_group = $jcliff_group
 
-  #Create directory for jcliff configurations to be put
-  file { $eap6_config_dir:
+  #Create directory for jcliff configurations 
+  file { $config_dir:
     ensure  => 'directory',
-    owner   => 'jboss',
-    group   => 'jboss',
+    owner   => '${jcliff_user},
+    group   => '${jcliff_user}',
     mode    => '0755',
   }
 
-  exec { 'configure-eap6' :
-    command   => "/usr/bin/jcliff --cli=${eap6_home}/bin/jboss-cli.sh -v --controller=${management_host}:${management_port} --output=${log_dir}/jcliff.log ${eap6_config_dir}/*",
-    onlyif    => "[ $(/usr/bin/find ${eap6_config_dir} -type f | /usr/bin/wc -l) -gt 0 ]",
+  exec { 'configure' :
+    command   => "/usr/bin/jcliff --cli=${jboss_home}/bin/jboss-cli.sh -v --controller=${management_host}:${management_port} --output=${log_dir}/jcliff.log ${config_dir}/*",
+    onlyif    => "[ $(/usr/bin/find ${config_dir} -type f -name '*.jcliff' | /usr/bin/wc -l) -gt 0 ]",
     logoutput => true,
     timeout   => 0,
-    require   => [ Package['jcliff'], Package["jbossas-${config}"], Service['jbossas'] ],
+    require   => [ File["${config_dir}"], Service['jbossas'] ],
     notify    => Exec['reload-check']
   }
 
-  exec { 'reload-check' :
-    onlyif  => "${eap6_home}/bin/jboss-cli.sh --controller=${management_host}:${management_port} --connect \":read-attribute(name=server-state)\" | grep reload-required",
+ exec { 'reload-check' :
+    onlyif  => "${jboss_home}/bin/jboss-cli.sh --controller=${management_host}:${management_port} --connect \":read-attribute(name=server-state)\" | grep reload-required",
     command => 'service jbossas restart',
     logoutput     => true
   }
