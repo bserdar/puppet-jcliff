@@ -3,8 +3,8 @@
 # directory is added.
 define jcliff::configfile (
   $mode='0644',
-  $owner=${jcliff::jcliff::configuration_user},
-  $group=${jcliff::jcliff::configuration_group},
+  $owner=$jcliff::jcliff::configuration_user,
+  $group=$jcliff::jcliff::configuration_group,
   $content = ''
   ) {
   file { "${jcliff::jcliff::configuration_directory}/${name}":

@@ -1,0 +1,28 @@
+{
+  "resource-adapter" => {
+      "<%= name %>" => {
+            "module" => "org.jboss.teiid.resource-adapter.salesforce:main",
+<% if transaction_support and transaction_support != '' %>            
+            "transaction-support" => "<%= transaction_support %>",
+<% end %>            
+            "connection-definitions" => {
+               "<%= name %>" => {
+                 "class-name" => "org.teiid.resource.adapter.salesforce.SalesForceManagedConnectionFactory",
+                 "enabled" => true,
+<% if flush_strategy and flush_strategy != '' %>                 
+                 "flush-strategy" => "<%= flush_strategy %>",
+<% end %>                 
+                 "jndi-name" => "<%= jndi_name %>",
+                 "config-properties" => {
+                     "URL" => {"value" => "<%= url >"},
+                     "password" => {"value" => "<%= password %>"},
+                     "username" => {"value" => "<%= username %>"}
+                 }
+               } 
+            }
+       }
+   }
+}
+
+            "transaction-support" => "NoTransaction",
+                 "flush-strategy" => "FailingConnectionOnly",
